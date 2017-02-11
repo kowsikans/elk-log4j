@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+    elasticsearch:
+        container_name: elasticsearch
+        build: 
+            context: ./elasticsearch/
+        networks:
+            - logging
+
+    logstash:
+        container_name: logstash
+        build: 
+            context: ./logstash/
+        command: -f /config-dir/logstash.conf
+        volumes:
+            - ./logstash:/config-dir
+        ports:
+            - "5000:5000"
+            - "9988:9988"
+        networks:
+            - logging
+        depends_on:
+            - elasticsearch
+
+    kibana:
+        container_name: kibana
+        build: 
+            context: ./kibana/
+        ports:
+            - "5601:5601"
+        networks:
+            - logging
+        depends_on:
+            - elasticsearch
+
+networks:
+  logging:
+    driver: bridge
